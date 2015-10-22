@@ -77,5 +77,6 @@ Example:
 >>> from datetime import datetime
 >>> link = Link.objects.create(link='http://github.com', is_active=True, created=datetime.now())
 >>> links = Link.objects.filter(link__contains='github.com', created__lte=datetime.now())
->>> links[0].is_active
+>>> links[0].is_active = False
+>>> link[0].save()
 ```
