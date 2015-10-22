@@ -1,0 +1,2 @@
+class MongoAvatar(object):
+    pass
