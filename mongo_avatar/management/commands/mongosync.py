@@ -69,7 +69,7 @@ if MONGO_SERVER:
                                 item = getattr(model._meta, 'collection')
                             print "- Creating Collection " + app_name + item.lower()
                             database[app_name + item.lower()].delete_one({"_id": database[app_name + item.lower()].insert_one({"temp": 1}).inserted_id})
-                            for field in model.fields:
+                            for field in model.__fields__:
                                 if model[field].options['unique']:
                                     print "- Creating unique index " + app_name + item.lower() + '_' + field + "_unique"
                                     try:
