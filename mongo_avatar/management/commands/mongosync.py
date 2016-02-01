@@ -52,7 +52,7 @@ if MONGO_SERVER:
         
         def handle(self, *args, **options):
             database = self.connect(options.get('database', False) or 'default')
-            print '- Syncing collections...'
+            print ('- Syncing collections...')
             for app in INSTALLED_APPS:
                 app_name = app
                 try:
@@ -67,11 +67,11 @@ if MONGO_SERVER:
                             if hasattr(model._meta, 'collection') and type(getattr(model._meta, 'collection', False)) == type('str'):
                                 app_name = ''
                                 item = getattr(model._meta, 'collection')
-                            print "- Creating Collection " + app_name + item.lower()
+                            print ("- Creating Collection " + app_name + item.lower())
                             database[app_name + item.lower()].delete_one({"_id": database[app_name + item.lower()].insert_one({"temp": 1}).inserted_id})
-                            for field in model.fields:
+                            for field in model.__fields__:
                                 if model[field].options['unique']:
-                                    print "- Creating unique index " + app_name + item.lower() + '_' + field + "_unique"
+                                    print ("- Creating unique index " + app_name + item.lower() + '_' + field + "_unique")
                                     try:
                                         database[app_name + item.lower()].delete_one({"_id": database[app_name + item.lower()].insert_one({"temp": 1}).inserted_id})
                                         database[app_name + item.lower()].drop_index(app_name + item.lower() + '_' + field + "_unique")
@@ -80,7 +80,7 @@ if MONGO_SERVER:
                                         database[app_name + item.lower()].delete_one({"_id": database[app_name + item.lower()].insert_one({"temp": 1}).inserted_id})
                                         database[app_name + item.lower()].ensure_index(app_name + field, name=app_name +  item.lower() + '_' + field + "_unique", unique=True, drop_dups=True)
                                 if model[field].options['db_index']:
-                                    print "- Creating index "+ app_name + item.lower() + '_' + field + "_index"
+                                    print ("- Creating index "+ app_name + item.lower() + '_' + field + "_index")
                                     try:
                                         database[app_name + item.lower()].delete_one({"_id": database[app_name + item.lower()].insert_one({"temp": 1}).inserted_id})
                                         database[app_name + item.lower()].drop_index(app_name + item.lower() + '_' + field + "_index")

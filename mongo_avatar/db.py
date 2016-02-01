@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from django.conf import settings
-from mongo_avatar.errors import DatabaseConfigurationError 
+from mongo_avatar.errors import DatabaseConfigurationError
+
 
 
 class Connections(object):
@@ -9,6 +10,7 @@ class Connections(object):
     def connect(self, *args, **kwargs):
         if kwargs.get('MONGO_CONNECTIONS'):
             connections = {}
+            MONGO_CONNECTIONS = kwargs.get('MONGO_CONNECTIONS')
             for cred_key in MONGO_CONNECTIONS:
                 try:
                     client = MongoClient(
@@ -23,7 +25,6 @@ class Connections(object):
                         )
                     connections.update({cred_key: client})
                 except Exception as err:
-                    print err
                     continue
             return connections
         elif hasattr(settings, 'MONGO_CONNECTIONS'):
@@ -44,7 +45,6 @@ class Connections(object):
                     db = client[MONGO_CONNECTIONS[cred_key].get('NAME')]
                     connections.update({cred_key: db})
                 except Exception as err:
-                    print err
                     continue
             return connections
         else:

@@ -65,6 +65,7 @@ class Query(object):
             for item in criteria.keys():
                 if item not in arguments.keys():
                     criteria.pop(item)
+            print criteria
             cursor = database[collection].find(criteria)
             return cursor
         elif caller == 'all':
@@ -80,9 +81,11 @@ class Query(object):
             for item in criteria.keys():
                 if item not in arguments.keys():
                     criteria.pop(item)
-            print criteria
             cursor = database[collection].remove(criteria)
-            return cursor
+            if cursor:
+                return cursor
+            else:
+                return []
         else:
             raise InvalidQueryError
         
@@ -113,9 +116,9 @@ class Queryset(object):
         if self.ordering == '?':
             random.shuffle(self.indexes)
         elif type(self.ordering) == str\
-            and (self.ordering in self.model.fields\
+            and (self.ordering in self.model.__fields__\
                 or (self.ordering.startswith('-')\
-                and self.ordering[1:] in self.model.fields)):
+                and self.ordering[1:] in self.model.__fields__)):
             if self.ordering.startswith('-'):
                 self.query.sort(self.ordering[1:], -1)
             else:
@@ -169,7 +172,7 @@ class Queryset(object):
         new_query = self.query_object.interprete(
             self.model._meta.db, 
             self.model._meta.collection, 
-            self.model.fields, 
+            self.model.__fields__, 
             kwargs
         )
         self_copy = copy(self)
@@ -198,7 +201,7 @@ class Queryset(object):
         new_query = self.query_object.interprete(
             self.model._meta.db, 
             self.model._meta.collection, 
-            self.model.fields, 
+            self.model.__fields__, 
             kwargs
         )
         self_copy = copy(self)
@@ -216,7 +219,7 @@ class Queryset(object):
         query = self.query_object.interprete(
             self.model._meta.db, 
             self.model._meta.collection, 
-            self.model.fields, 
+            self.model.__fields__, 
             criteria
         )
         del(self)
@@ -231,14 +234,14 @@ class Objects(object):
         self.model = kwargs.get('model')
         dir(self.model)
         if self.model:
-            self.fields = getattr(self.model._meta, '__fields__', False)
+            self.__fields__ = getattr(self.model._meta, '__fields__', False)
             self._meta = getattr(self.model, '_meta', False)
     
     def create(self, *args, **kwargs):
         query = self.query.interprete(
             self._meta.db, 
             self._meta.collection, 
-            self.fields, 
+            self.__fields__, 
             kwargs
         )
         model = copy(self.model)
@@ -250,7 +253,7 @@ class Objects(object):
         query = self.query.interprete(
             self._meta.db, 
             self._meta.collection, 
-            self.fields, 
+            self.__fields__, 
             kwargs
         )
         model = copy(self.model)
@@ -262,7 +265,7 @@ class Objects(object):
         query = self.query.interprete(
             self._meta.db, 
             self._meta.collection, 
-            self.fields, 
+            self.__fields__, 
             kwargs
         )
         queryset = copy(Queryset(self.model, query))
@@ -272,7 +275,7 @@ class Objects(object):
         query = self.query.interprete(
             self._meta.db, 
             self._meta.collection, 
-            self.fields, 
+            self.__fields__, 
             {}
         )
         queryset = copy(Queryset(self.model, query))
@@ -287,7 +290,7 @@ class Objects(object):
         query = self.query.interprete(
             self._meta.db, 
             self._meta.collection, 
-            self.fields, 
+            self.__fields__, 
             kwargs
         )
         queryset = copy(Queryset(self.model, query))
